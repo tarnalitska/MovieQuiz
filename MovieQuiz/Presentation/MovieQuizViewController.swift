@@ -3,39 +3,39 @@ import UIKit
 final class MovieQuizViewController: UIViewController {
     
     private let questions: [QuizQuestion] = [
-        QuizQuestion(image: "The Godfather",
+        .init(image: "The Godfather",
         text: "Рейтинг этого фильма больше чем 6?",
         correctAnswer: true),
-        QuizQuestion(image: "The Dark Knight",
+        .init(image: "The Dark Knight",
         text: "Рейтинг этого фильма больше чем 6?",
         correctAnswer: true),
-        QuizQuestion(image: "Kill Bill",
+        .init(image: "Kill Bill",
         text: "Рейтинг этого фильма больше чем 6?",
         correctAnswer: true),
-        QuizQuestion(image: "The Avengers",
+        .init(image: "The Avengers",
         text: "Рейтинг этого фильма больше чем 6?",
         correctAnswer: true),
-        QuizQuestion(image: "Deadpool",
+        .init(image: "Deadpool",
         text: "Рейтинг этого фильма больше чем 6?",
         correctAnswer: true),
-        QuizQuestion(image: "The Green Knight",
+        .init(image: "The Green Knight",
         text: "Рейтинг этого фильма больше чем 6?",
         correctAnswer: true),
-        QuizQuestion(image: "Old",
+        .init(image: "Old",
         text: "Рейтинг этого фильма больше чем 6?",
         correctAnswer: false),
-        QuizQuestion(image: "The Ice Age Adventures of Buck Wild",
+        .init(image: "The Ice Age Adventures of Buck Wild",
         text: "Рейтинг этого фильма больше чем 6?",
         correctAnswer: false),
-        QuizQuestion(image: "Tesla",
+        .init(image: "Tesla",
         text: "Рейтинг этого фильма больше чем 6?",
         correctAnswer: false),
-        QuizQuestion(image: "Vivarium",
+        .init(image: "Vivarium",
         text: "Рейтинг этого фильма больше чем 6?",
         correctAnswer: false)
     ]
-    private var currentQuestionIndex = 0
-    private var correctAnswers = 0
+    private var currentQuestionIndex: Int = .zero
+    private var correctAnswers: Int = .zero
     
     @IBOutlet private weak var leftButton: UIButton!
     @IBOutlet private weak var rightButton: UIButton!
@@ -72,19 +72,19 @@ final class MovieQuizViewController: UIViewController {
         questionLabel.font = UIFont(name: "YSDisplay-Bold", size: 23.0)
     }
     
-    struct QuizQuestion {
+    private struct QuizQuestion {
         let image: String
         let text: String
         let correctAnswer: Bool
     }
     
-    struct QuizStepViewModel {
+    private struct QuizStepViewModel {
         let image: UIImage
         let question: String
         let questionNumber: String
     }
     
-    struct QuizResultsViewModel {
+    private struct QuizResultsViewModel {
         let title: String
         let text: String
         let buttonText: String
@@ -121,27 +121,17 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showNextQuestionOrResults() {
+        imageView.layer.borderWidth = 0
         if currentQuestionIndex == questions.count - 1 {
-            imageView.layer.borderWidth = 0
-            
-            let text = "Ваш результат: \(correctAnswers)/10"
-            
             let viewModel = QuizResultsViewModel(
                 title: "Этот раунд окончен!",
-                text: text,
+                text: "Ваш результат: \(correctAnswers)/10",
                 buttonText: "Сыграть еще раз"
             )
-            
             show(quiz: viewModel)
-        }
-        else
-        {
+        } else {
             currentQuestionIndex += 1
-            imageView.layer.borderWidth = 0
-            
-            let nextQuestion = questions[currentQuestionIndex]
-            let viewModel = convert(model: nextQuestion)
-            
+            let viewModel = convert(model: questions[currentQuestionIndex])
             show(quiz: viewModel)
         }
     }
