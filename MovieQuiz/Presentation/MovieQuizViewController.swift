@@ -106,6 +106,11 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showAnswerResult(isCorrect: Bool) {
+        rightButton.isEnabled = false
+        rightButton.setTitleColor(UIColor.lightGray, for: .normal)
+        leftButton.isEnabled = false
+        leftButton.setTitleColor(UIColor.lightGray, for: .normal)
+        
         if isCorrect {
             correctAnswers += 1
         }
@@ -122,6 +127,10 @@ final class MovieQuizViewController: UIViewController {
     
     private func showNextQuestionOrResults() {
         imageView.layer.borderWidth = 0
+        rightButton.isEnabled = true
+        leftButton.isEnabled = true
+        rightButton.setTitleColor(UIColor(named: "YPBlack"), for: .normal)
+        leftButton.setTitleColor(UIColor(named: "YPBlack"), for: .normal)
         if currentQuestionIndex == questions.count - 1 {
             let viewModel = QuizResultsViewModel(
                 title: "Этот раунд окончен!",
