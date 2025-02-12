@@ -6,7 +6,7 @@
 
 import Foundation
 
-class QuestionFactory: QuestionFactoryProtocol {
+final class QuestionFactory: QuestionFactoryProtocol {
     private let questions: [QuizQuestion] = [
         .init(image: "The Godfather",
         text: "Рейтинг этого фильма больше чем 6?",
