@@ -99,17 +99,23 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="C81-UX-Snr">
+                                <rect key="frame" x="197" y="438" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YPBackground"/>
                         <constraints>
                             <constraint firstItem="LeN-bG-qDT" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="29V-pT-5Ow"/>
+                            <constraint firstItem="C81-UX-Snr" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="3Wi-Bx-wgD"/>
                             <constraint firstItem="LeN-bG-qDT" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="9wu-Dv-KHb"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="LeN-bG-qDT" secondAttribute="trailing" constant="20" id="U6x-tY-cNA"/>
+                            <constraint firstItem="C81-UX-Snr" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="W2n-FD-2cF"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="LeN-bG-qDT" secondAttribute="bottom" id="lA2-T2-rGZ"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="C81-UX-Snr" id="qQp-5C-55Q"/>
                         <outlet property="imageView" destination="hba-v1-TL8" id="gjv-dl-aDi"/>
                         <outlet property="indexLabel" destination="GZM-Aq-E72" id="Y4E-sr-VU4"/>
                         <outlet property="leftButton" destination="e7J-YL-LIf" id="Wd2-P4-7ji"/>
