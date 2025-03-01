@@ -9,11 +9,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var questionLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
     
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
+    
     private var currentQuestionIndex: Int = .zero
     private var correctAnswers: Int = .zero
     
     private let questionsAmount: Int = 10
-    private var questionFactory: QuestionFactoryProtocol = QuestionFactory()
+    private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     
     private var alertPresenter: AlertPresenter?
@@ -25,13 +27,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         super.viewDidLoad()
         setupFont()
         
-        let questionFactory = QuestionFactory()
-        questionFactory.delegate = self
-        self.questionFactory = questionFactory
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        statisticService = StatisticService()
+
+        imageView.layer.cornerRadius = 20
+        imageView.backgroundColor = .clear
+        questionLabel.text = nil
+    
         
-        questionFactory.requestNextQuestion()
-        
-        alertPresenter = AlertPresenter(viewController: self)
+        showLoadingIndicator()
+        questionFactory?.loadData()
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -47,6 +52,20 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
         }
+    }
+    
+    func didLoadDataFromServer() {
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: any Error) {
+        showNetworkError(message: error.localizedDescription)
+    }
+    
+    func didFailToLoadImage(with message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
     
     // MARK: - Actions
@@ -82,7 +101,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
         )
@@ -90,6 +109,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func show(quiz step: QuizStepViewModel) {
+        hideLoadingIndicator()
         imageView.image = step.image
         indexLabel.text = step.questionNumber
         questionLabel.text = step.question
@@ -141,12 +161,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 show(quiz: viewModel)
             } else {
                 currentQuestionIndex += 1
-                
-                self.questionFactory.requestNextQuestion()
+                showLoadingIndicator()
+                self.questionFactory?.requestNextQuestion()
             }
     }
     
-    func show(quiz result: QuizResultsViewModel) {
+    private func show(quiz result: QuizResultsViewModel) {
         
         let alertModel = AlertModel(
             title: result.title,
@@ -157,11 +177,39 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 
                 self.currentQuestionIndex = 0
                 self.correctAnswers = 0
-                questionFactory.requestNextQuestion()
+                
+                questionFactory?.requestNextQuestion()
             }
         )
         
         AlertPresenter.showAlert(model: alertModel, on: self)
     }
+    
+    private func showLoadingIndicator() {
+        activityIndicator.startAnimating()
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.stopAnimating()
+    }
 
+    private func showNetworkError(message: String) {
+        
+        let alertModel = AlertModel(
+            title: "Error",
+            message: message,
+            buttonText: "Try to reload",
+            completion: { [weak self] in
+                guard let self = self else { return }
+                
+                self.currentQuestionIndex = 0
+                self.correctAnswers = 0
+                hideLoadingIndicator()
+        
+                questionFactory?.loadData()
+            }
+        )
+        
+        AlertPresenter.showAlert(model: alertModel, on: self)
+    }
 }
