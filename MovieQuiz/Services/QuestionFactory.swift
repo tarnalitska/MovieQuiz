@@ -25,6 +25,18 @@ final class QuestionFactory: QuestionFactoryProtocol {
                 
                 switch result {
                 case .success(let mostPopularMovies):
+                    if let errorMessage = mostPopularMovies.errorMessage, !errorMessage.isEmpty {
+                            let error = CustomError.apiError(message: errorMessage)
+                            self.delegate?.didFailToLoadData(with: error)
+                            return
+                    }
+                    
+                    if mostPopularMovies.items.isEmpty {
+                            let error = CustomError.emptyMovies
+                            self.delegate?.didFailToLoadData(with: error)
+                            return
+                    }
+                    
                     self.movies = mostPopularMovies.items
                     self.delegate?.didLoadDataFromServer()
                     
@@ -54,12 +66,27 @@ final class QuestionFactory: QuestionFactoryProtocol {
                 imageData = try Data(contentsOf: movie.resizedImageURL)
             } catch {
                 print("Failed to load image")
+            
+                let error = CustomError.imageLoadingFail
+                
+                DispatchQueue.main.async { [weak self] in
+                    self?.delegate?.didFailToLoadImage(with: error.localizedDescription)
+                }
+                return
             }
             
-            let rating = Float(movie.rating) ?? 0
-            
-            let text = "Рейтинг этого фильма больше чем 7?"
-            let correctAnswer = rating > 7
+            let rating = Float(movie.rating) ?? 0 
+        
+            let randomRating = Float.random(in: 5...9)
+            let isGreaterQuestion = Bool.random()
+              
+            let text = isGreaterQuestion
+                  ? "Рейтинг этого фильма больше чем \(Int(randomRating))?"
+                  : "Рейтинг этого фильма меньше чем \(Int(randomRating))?"
+              
+            let correctAnswer = isGreaterQuestion
+                  ? rating > randomRating
+                  : rating < randomRating
             
             let question = QuizQuestion(image: imageData,
                                         text: text,

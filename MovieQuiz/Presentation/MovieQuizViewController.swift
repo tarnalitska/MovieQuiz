@@ -9,7 +9,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var questionLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
     
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     private var currentQuestionIndex: Int = .zero
     private var correctAnswers: Int = .zero
@@ -31,6 +31,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         statisticService = StatisticService()
 
         imageView.layer.cornerRadius = 20
+        imageView.backgroundColor = .clear
+        questionLabel.text = nil
+    
         
         showLoadingIndicator()
         questionFactory?.loadData()
@@ -52,12 +55,17 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     func didLoadDataFromServer() {
-        activityIndicator.isHidden = true
         questionFactory?.requestNextQuestion()
     }
     
     func didFailToLoadData(with error: any Error) {
         showNetworkError(message: error.localizedDescription)
+    }
+    
+    func didFailToLoadImage(with message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
     
     // MARK: - Actions
@@ -101,6 +109,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func show(quiz step: QuizStepViewModel) {
+        hideLoadingIndicator()
         imageView.image = step.image
         indexLabel.text = step.questionNumber
         questionLabel.text = step.question
@@ -152,7 +161,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 show(quiz: viewModel)
             } else {
                 currentQuestionIndex += 1
-                
+                showLoadingIndicator()
                 self.questionFactory?.requestNextQuestion()
             }
     }
@@ -168,6 +177,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 
                 self.currentQuestionIndex = 0
                 self.correctAnswers = 0
+                
                 questionFactory?.requestNextQuestion()
             }
         )
@@ -176,8 +186,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func showLoadingIndicator() {
-        activityIndicator.isHidden = false
         activityIndicator.startAnimating()
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.stopAnimating()
     }
 
     private func showNetworkError(message: String) {
@@ -191,9 +204,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 
                 self.currentQuestionIndex = 0
                 self.correctAnswers = 0
-                activityIndicator.isHidden = true
-                
-                questionFactory?.requestNextQuestion()
+                hideLoadingIndicator()
+        
                 questionFactory?.loadData()
             }
         )
