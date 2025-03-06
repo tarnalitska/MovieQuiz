@@ -33,7 +33,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         imageView.backgroundColor = .clear
         questionLabel.text = nil
     
-        
+        presenter.viewController = self
         showLoadingIndicator()
         questionFactory?.loadData()
     }
@@ -70,22 +70,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - Actions
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        
-        let givenAnswer = true
-        
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        presenter.currentQuestion = currentQuestion
+        presenter.yesButtonClicked()
     }
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        
-        let givenAnswer = false
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        presenter.currentQuestion = currentQuestion
+        presenter.noButtonClicked()
     }
     
     // MARK: - Private functions
@@ -105,26 +96,26 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         questionLabel.text = step.question
     }
     
-    private func showAnswerResult(isCorrect: Bool) {
-        rightButton.isEnabled = false
-        rightButton.setTitleColor(UIColor.lightGray, for: .normal)
-        leftButton.isEnabled = false
-        leftButton.setTitleColor(UIColor.lightGray, for: .normal)
-        
-        if isCorrect {
-            correctAnswers += 1
-        }
-        
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        imageView.layer.cornerRadius = 20
-        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-            self.showNextQuestionOrResults()
-        }
+    func showAnswerResult(isCorrect: Bool) {
+    rightButton.isEnabled = false
+    rightButton.setTitleColor(UIColor.lightGray, for: .normal)
+    leftButton.isEnabled = false
+    leftButton.setTitleColor(UIColor.lightGray, for: .normal)
+    
+    if isCorrect {
+        correctAnswers += 1
     }
+    
+    imageView.layer.masksToBounds = true
+    imageView.layer.borderWidth = 8
+    imageView.layer.cornerRadius = 20
+    imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+    
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+        guard let self = self else { return }
+        self.showNextQuestionOrResults()
+    }
+}
     
     private func showNextQuestionOrResults() {
         imageView.layer.borderWidth = 0
