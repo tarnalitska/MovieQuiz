@@ -156,7 +156,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             let viewModel = QuizResultsViewModel(
                 title: "Этот раунд окончен!",
                 text: "Ваш результат: \(correctAnswers)/10\nКоличество сыгранных квизов: \(gamesCount)\nРекорд: \(correct)/\(total) (\(String(describing: date)))\nСредняя точность: \(String(format: "%.2f", totalAccuracy))%",
-                buttonText: "Сыграть еще раз"
+                buttonText: "Сыграть ещё раз"
             )
                 show(quiz: viewModel)
             } else {
@@ -179,7 +179,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 self.correctAnswers = 0
                 
                 questionFactory?.requestNextQuestion()
-            }
+            }, accessibilityIdentifier: "Game results"
         )
         
         AlertPresenter.showAlert(model: alertModel, on: self)
@@ -207,7 +207,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 hideLoadingIndicator()
         
                 questionFactory?.loadData()
-            }
+            }, accessibilityIdentifier: "Network Error"
         )
         
         AlertPresenter.showAlert(model: alertModel, on: self)
