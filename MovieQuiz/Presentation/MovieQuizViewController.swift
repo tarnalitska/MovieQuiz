@@ -2,23 +2,22 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             
-    @IBOutlet private weak var leftButton: UIButton!
-    @IBOutlet private weak var rightButton: UIButton!
+    @IBOutlet weak var leftButton: UIButton!
+    @IBOutlet weak var rightButton: UIButton!
     @IBOutlet private weak var questionTitleLabel: UILabel!
     @IBOutlet private weak var indexLabel: UILabel!
     @IBOutlet private weak var questionLabel: UILabel!
-    @IBOutlet private weak var imageView: UIImageView!
     
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     private var correctAnswers: Int = .zero
-    
     private var questionFactory: QuestionFactoryProtocol?
-    private var currentQuestion: QuizQuestion?
-    
     private let presenter = MovieQuizPresenter()
     private var alertPresenter: AlertPresenter?
     private var statisticService: StatisticServiceProtocol? =  StatisticService()
+    
+    @IBOutlet weak var imageView: UIImageView!
+
     
     // MARK: - Lifecycle
     
@@ -41,16 +40,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - QuestionFactoryDelegate
     
     func didReceiveNextQuestion(question: QuizQuestion?){
-        guard let question = question else {
-            return
-        }
-        
-        currentQuestion = question
-        let viewModel = presenter.convert(model: question)
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
-        }
+        presenter.didReceiveNextQuestion(question: question)
     }
     
     func didLoadDataFromServer() {
@@ -70,12 +60,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - Actions
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        presenter.currentQuestion = currentQuestion
         presenter.yesButtonClicked()
     }
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        presenter.currentQuestion = currentQuestion
         presenter.noButtonClicked()
     }
     
@@ -89,12 +77,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         questionLabel.font = UIFont(name: "YSDisplay-Bold", size: 23.0)
     }
     
-    private func show(quiz step: QuizStepViewModel) {
-        hideLoadingIndicator()
-        imageView.image = step.image
-        indexLabel.text = step.questionNumber
-        questionLabel.text = step.question
-    }
+    func show(quiz step: QuizStepViewModel) {
+    hideLoadingIndicator()
+    imageView.image = step.image
+    indexLabel.text = step.questionNumber
+    questionLabel.text = step.question
+}
     
     func showAnswerResult(isCorrect: Bool) {
     rightButton.isEnabled = false
@@ -113,62 +101,34 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
         guard let self = self else { return }
-        self.showNextQuestionOrResults()
+        self.presenter.correctAnswers = self.correctAnswers
+        self.presenter.questionFactory = self.questionFactory
+        self.presenter.showNextQuestionOrResults()
     }
 }
     
-    private func showNextQuestionOrResults() {
-        imageView.layer.borderWidth = 0
-        rightButton.isEnabled = true
-        leftButton.isEnabled = true
-        rightButton.setTitleColor(UIColor(named: "YPBlack"), for: .normal)
-        leftButton.setTitleColor(UIColor(named: "YPBlack"), for: .normal)
-        
-        if presenter.isLastQuestion() {
-            statisticService?.store(correct: correctAnswers, total: 10)
-            
-            let gamesCount = statisticService?.gamesCount ?? 0
-        
-            let correct = statisticService?.bestGame.correct ?? 0
-            let total = statisticService?.bestGame.total ?? 0
-            let date = statisticService?.bestGame.date.dateTimeString ?? ""
-            let totalAccuracy = statisticService?.totalAccuracy ?? 0.0
-            
-            let viewModel = QuizResultsViewModel(
-                title: "Этот раунд окончен!",
-                text: "Ваш результат: \(correctAnswers)/10\nКоличество сыгранных квизов: \(gamesCount)\nРекорд: \(correct)/\(total) (\(String(describing: date)))\nСредняя точность: \(String(format: "%.2f", totalAccuracy))%",
-                buttonText: "Сыграть ещё раз"
-            )
-                show(quiz: viewModel)
-            } else {
-                presenter.switchToTheNextQuestion()
-                showLoadingIndicator()
-                self.questionFactory?.requestNextQuestion()
-            }
-    }
+    func show(quiz result: QuizResultsViewModel) {
     
-    private func show(quiz result: QuizResultsViewModel) {
-        
-        let alertModel = AlertModel(
-            title: result.title,
-            message: result.text,
-            buttonText: result.buttonText,
-            completion: { [weak self] in
-                guard let self = self else { return }
-                
-                self.presenter.resetQuestionIndex()
-                self.correctAnswers = 0
-                
-                questionFactory?.requestNextQuestion()
-            }, accessibilityIdentifier: "Game results"
-        )
-        
-        AlertPresenter.showAlert(model: alertModel, on: self)
-    }
+    let alertModel = AlertModel(
+        title: result.title,
+        message: result.text,
+        buttonText: result.buttonText,
+        completion: { [weak self] in
+            guard let self = self else { return }
+            
+            self.presenter.resetQuestionIndex()
+            self.correctAnswers = 0
+            
+            questionFactory?.requestNextQuestion()
+        }, accessibilityIdentifier: "Game results"
+    )
     
-    private func showLoadingIndicator() {
-        activityIndicator.startAnimating()
-    }
+    AlertPresenter.showAlert(model: alertModel, on: self)
+}
+    
+    func showLoadingIndicator() {
+    activityIndicator.startAnimating()
+}
     
     private func hideLoadingIndicator() {
         activityIndicator.stopAnimating()
