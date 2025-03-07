@@ -7,16 +7,42 @@
 
 import UIKit
 
-final class MovieQuizPresenter {
+final class MovieQuizPresenter: QuestionFactoryDelegate {
+    private var questionFactory: QuestionFactoryProtocol?
+    private weak var viewController: MovieQuizViewController?
+    
     let questionsAmount: Int = 10
-    var questionFactory: QuestionFactoryProtocol?
     var currentQuestion: QuizQuestion?
-    weak var viewController: MovieQuizViewController?
     var correctAnswers: Int = .zero
     
     private var currentQuestionIndex: Int = .zero
     private var statisticService: StatisticServiceProtocol? =  StatisticService()
     
+    init(viewController: MovieQuizViewController) {
+        self.viewController = viewController
+        
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        questionFactory?.loadData()
+        viewController.showLoadingIndicator()
+    }
+    
+    // MARK: - QuestionFactoryDelegate
+    
+    func didLoadDataFromServer() {
+        viewController?.hideLoadingIndicator()
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: any Error) {
+        viewController?.showNetworkError(message: error.localizedDescription)
+    }
+    
+    func didFailToLoadImage(with message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        viewController?.present(alert, animated: true)
+    }
+
     @IBAction func yesButtonClicked() {
         didAnswer(isYes: true)
     }
@@ -29,12 +55,18 @@ final class MovieQuizPresenter {
         currentQuestionIndex == questionsAmount - 1
     }
     
-    func resetQuestionIndex() {
+    func restartGame() {
         currentQuestionIndex = .zero
+        correctAnswers = .zero
+        questionFactory?.requestNextQuestion()
     }
     
     func switchToTheNextQuestion() {
         currentQuestionIndex += 1
+    }
+    
+    func updateCorrectAnswers() {
+        correctAnswers += 1
     }
     
     func convert(model: QuizQuestion) -> QuizStepViewModel {
@@ -92,7 +124,7 @@ final class MovieQuizPresenter {
             }
     }
     
-    private func didAnswer(isYes: Bool) {
+    func didAnswer(isYes: Bool) {
         guard let currentQuestion = currentQuestion else {
             return
         }
