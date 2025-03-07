@@ -7,23 +7,48 @@
 
 import UIKit
 
+protocol MovieQuizViewControllerProtocol: AnyObject {
+    func show(quiz step: QuizStepViewModel)
+    func show(quiz result: QuizResultsViewModel)
+    
+    func highlightImageBorder(isCorrectAnswer: Bool)
+    func removeHighlightImageBorder()
+    
+    func blockButtons()
+    func unblockButtons()
+    
+    func showLoadingIndicator()
+    func hideLoadingIndicator()
+    
+    func showNetworkError(message: String)
+}
+
 final class MovieQuizPresenter: QuestionFactoryDelegate {
+    private var statisticService: StatisticServiceProtocol!
     private var questionFactory: QuestionFactoryProtocol?
-    private weak var viewController: MovieQuizViewController?
+    private weak var viewController: MovieQuizViewControllerProtocol?
     
-    let questionsAmount: Int = 10
-    var currentQuestion: QuizQuestion?
-    var correctAnswers: Int = .zero
-    
+    private let questionsAmount: Int = 10
+    private var currentQuestion: QuizQuestion?
+    private var correctAnswers: Int = .zero
     private var currentQuestionIndex: Int = .zero
-    private var statisticService: StatisticServiceProtocol? =  StatisticService()
     
-    init(viewController: MovieQuizViewController) {
+    init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
+        
+        statisticService = StatisticService()
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
         viewController.showLoadingIndicator()
+    }
+    
+    @IBAction func yesButtonClicked() {
+        didAnswer(isYes: true)
+    }
+    
+    @IBAction func noButtonClicked() {
+        didAnswer(isYes: false)
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -38,17 +63,19 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     func didFailToLoadImage(with message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        viewController?.present(alert, animated: true)
-    }
-
-    @IBAction func yesButtonClicked() {
-        didAnswer(isYes: true)
-    }
-    
-    @IBAction func noButtonClicked() {
-        didAnswer(isYes: false)
+        let alertModel = AlertModel(
+            title: "Ошибка",
+            message: message,
+            buttonText: "Перезагрузить",
+            completion: { [weak self] in
+                guard let self = self else { return }
+                
+                viewController?.hideLoadingIndicator()
+                restartGame()
+            }, accessibilityIdentifier: "Image Load Error"
+        )
+        
+        AlertPresenter.showAlert(model: alertModel, on: self.viewController as! UIViewController)
     }
     
     func isLastQuestion() -> Bool {
@@ -90,13 +117,9 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
     
-    func showNextQuestionOrResults() {
-        
-        viewController?.imageView.layer.borderWidth = .zero
-        viewController?.rightButton.isEnabled = true
-        viewController?.leftButton.isEnabled = true
-        viewController?.rightButton.setTitleColor(UIColor(named: "YPBlack"), for: .normal)
-        viewController?.leftButton.setTitleColor(UIColor(named: "YPBlack"), for: .normal)
+    private func proceedToNextQuestionOrResults() {
+        viewController?.removeHighlightImageBorder()
+        viewController?.unblockButtons()
         
         
         if self.isLastQuestion() {
@@ -124,13 +147,27 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             }
     }
     
-    func didAnswer(isYes: Bool) {
+    private func proceedWithAnswer(isCorrect: Bool) {
+        if isCorrect {
+            updateCorrectAnswers()
+        }
+        
+        viewController?.blockButtons()
+        viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            self.proceedToNextQuestionOrResults()
+        }
+    }
+    
+    private func didAnswer(isYes: Bool) {
         guard let currentQuestion = currentQuestion else {
             return
         }
         
         let givenAnswer = isYes
         
-        viewController?.showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        proceedWithAnswer(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
 }
