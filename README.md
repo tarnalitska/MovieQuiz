@@ -1,33 +1,33 @@
 ## **MovieQuiz**
 
-MovieQuiz - это приложение с квизами о фильмах из топ-250 рейтинга и самых популярных фильмах по версии IMDb.
+Movie Quiz is an application featuring quizzes about films from the IMDb Top 250 and most popular movies lists.
 
-## **Ссылки**
+## **Links**
 
-[Макет Figma](https://www.figma.com/file/l0IMG3Eys35fUrbvArtwsR/YP-Quiz?node-id=34%3A243)
+[Figma](https://www.figma.com/file/l0IMG3Eys35fUrbvArtwsR/YP-Quiz?node-id=34%3A243)
 
 [API IMDb](https://imdb-api.com/api#Top250Movies-header)
 
-[Шрифты](https://code.s3.yandex.net/Mobile/iOS/Fonts/MovieQuizFonts.zip)
+[Fonts](https://code.s3.yandex.net/Mobile/iOS/Fonts/MovieQuizFonts.zip)
 
-## **Описание приложения**
+## **Application Description**
 
-- Одностраничное приложение с квизами о фильмах из топ-250 рейтинга и самых популярных фильмов IMDb. Пользователь приложения последовательно отвечает на вопросы о рейтинге фильма. По итогам каждого раунда игры показывается статистика о количестве правильных ответов и лучших результатах пользователя. Цель игры — правильно ответить на все 10 вопросов раунда.
+- A single-page application with quizzes about films from the IMDb Top 250 rating and most popular films. Users answer consecutive questions about film ratings. At the end of each game round, statistics about the number of correct answers and the user's best results are displayed. The goal is to answer all 10 questions in a round correctly.
 
-## **Функциональные требования**
+## **Functional Requirements**
 
-- При запуске приложения показывается сплеш-скрин;
-- После запуска приложения показывается экран вопроса с текстом вопроса, картинкой и двумя вариантами ответа, “Да” и “Нет”, только один из них правильный;
-- Вопрос квиза составляется относительно IMDb рейтинга фильма по 10-балльной шкале, например: "Рейтинг этого фильма больше 6?";
-- Можно нажать на один из вариантов ответа на вопрос и получить отклик о том, правильный он или нет, при этом рамка фотографии поменяет цвет на соответствующий;
-- После выбора ответа на вопрос через 1 секунду автоматически появляется следующий вопрос;
-- После завершения раунда из 10 вопросов появляется алерт со статистикой пользователя и возможностью сыграть ещё раз;
-- Статистика содержит: результат текущего раунда (количество правильных ответов из 10 вопросов), количество сыгранных квизов, рекорд (лучший результат раунда за сессию, дата и время этого раунда), статистику сыгранных квизов в процентном соотношении (среднюю точность);
-- Пользователь может запустить новый раунд, нажав в алерте на кнопку "Сыграть еще раз";
-- При невозможности загрузить данные пользователь видит алерт с сообщением о том, что что-то пошло не так, а также кнопкой, по нажатию на которую можно повторить сетевой запрос.
+- A splash screen appears when launching the application
+- After launch, a question screen appears with question text, an image, and two answer options, "Yes" and "No", with only one being correct
+- Quiz questions are formulated regarding the IMDb rating of films on a 10-point scale, for example: "Is this movie rated higher than 6?"
+- Users can select an answer option and receive feedback on whether it's correct, with the photo frame changing color accordingly
+- After choosing an answer, the next question automatically appears after 1 second
+- Upon completion of a 10-question round, an alert appears with user statistics and an option to play again
+- Statistics include: current round result (number of correct answers out of 10 questions), number of quizzes played, record (best round result for the session, including date and time), and statistics of played quizzes as a percentage (average accuracy)
+- Users can start a new round by clicking the "Play again" button in the alert
+- If data cannot be loaded, users see an alert with a message indicating something went wrong, along with a button to retry the network request
 
-## **Технические требования**
+## **Technical Requirements**
 
-- Приложение должно поддерживать устройства iPhone с iOS 15, предусмотрен только портретный режим;
-- Элементы интерфейса адаптируются под разрешения экранов iPhone, начиная с X — вёрстка под SE и iPad не предусмотрена;
-- Экраны соответствует макету — использованы верные шрифты нужных размеров, все надписи находятся на нужном месте, расположение всех элементов, размеры кнопок и отступы — точно такие же, как в макете.
+- The application must support iPhone devices with iOS 15, with portrait mode only
+- Interface elements must adapt to iPhone screen resolutions, starting from iPhone X — layouts for SE and iPad are not required
+- Screens must match the design layout — using correct fonts of the required sizes, with all text in the proper position, and the placement of all elements, button sizes, and margins exactly as specified in the layout
