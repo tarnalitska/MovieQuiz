@@ -1,10 +1,3 @@
-//
-//  CustomError.swift
-//  MovieQuiz
-//
-//  Created by Sofya Tarnalitskaya on 01/03/2025.
-//
-
 import Foundation
 
 enum CustomError: Error, LocalizedError {
