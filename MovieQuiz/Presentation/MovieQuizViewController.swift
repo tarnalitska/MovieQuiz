@@ -35,19 +35,15 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     }
     
     func show(quiz result: QuizResultsViewModel) {
-    
         let alertModel = AlertModel(
             title: result.title,
             message: result.text,
             buttonText: result.buttonText,
             completion: { [weak self] in
                 guard let self = self else { return }
-                
                 self.presenter.restartGame()
-                
             }, accessibilityIdentifier: "Game results"
         )
-        
         AlertPresenter.showAlert(model: alertModel, on: self)
     }
     
@@ -77,7 +73,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     }
     
     func showLoadingIndicator() {
-    activityIndicator.startAnimating()
+        activityIndicator.startAnimating()
 }
     
     func hideLoadingIndicator() {
@@ -85,19 +81,16 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     }
 
     func showNetworkError(message: String) {
-        
         let alertModel = AlertModel(
             title: "Error",
             message: message,
             buttonText: "Try to reload",
             completion: { [weak self] in
                 guard let self = self else { return }
-                
                 hideLoadingIndicator()
                 self.presenter.restartGame()
             }, accessibilityIdentifier: "Network Error"
         )
-        
         AlertPresenter.showAlert(model: alertModel, on: self)
     }
     

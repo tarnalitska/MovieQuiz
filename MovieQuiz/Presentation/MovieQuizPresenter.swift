@@ -1,10 +1,3 @@
-//
-//  MovieQuizPresenter.swift
-//  MovieQuiz
-//
-//  Created by Sofya Tarnalitskaya on 06/03/2025.
-//
-
 import UIKit
 
 protocol MovieQuizViewControllerProtocol: AnyObject {
@@ -37,7 +30,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         self.viewController = viewController
         
         statisticService = StatisticService()
-        
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
         viewController.showLoadingIndicator()
@@ -64,9 +56,9 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     func didFailToLoadImage(with message: String) {
         let alertModel = AlertModel(
-            title: "Ошибка",
+            title: "Error",
             message: message,
-            buttonText: "Перезагрузить",
+            buttonText: "Reload",
             completion: { [weak self] in
                 guard let self = self else { return }
                 
@@ -121,30 +113,27 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         viewController?.removeHighlightImageBorder()
         viewController?.unblockButtons()
         
+        guard self.isLastQuestion() else {
+            self.switchToTheNextQuestion()
+            viewController?.showLoadingIndicator()
+            questionFactory?.requestNextQuestion()
+            return
+        }
         
-        if self.isLastQuestion() {
-            statisticService?.store(correct: correctAnswers, total: 10)
-                        
-            let gamesCount = statisticService?.gamesCount ?? 0
-                    
-            let correct = statisticService?.bestGame.correct ?? 0
-            let total = statisticService?.bestGame.total ?? 0
-            let date = statisticService?.bestGame.date.dateTimeString ?? ""
-            let totalAccuracy = statisticService?.totalAccuracy ?? 0.0
+        statisticService?.store(correct: correctAnswers, total: 10)
+        let gamesCount = statisticService?.gamesCount ?? 0
+        let correct = statisticService?.bestGame.correct ?? 0
+        let total = statisticService?.bestGame.total ?? 0
+        let date = statisticService?.bestGame.date.dateTimeString ?? ""
+        let totalAccuracy = statisticService?.totalAccuracy ?? 0.0
 
-            let text = "Ваш результат: \(correctAnswers)/10\nКоличество сыгранных квизов: \(gamesCount)\nРекорд: \(correct)/\(total) (\(String(describing: date)))\nСредняя точность: \(String(format: "%.2f", totalAccuracy))%"
-            
-            let viewModel = QuizResultsViewModel(
-                title: "Этот раунд окончен!",
-                text: text,
-                buttonText: "Сыграть ещё раз"
-            )
-            viewController?.show(quiz: viewModel)
-            } else {
-                self.switchToTheNextQuestion()
-                viewController?.showLoadingIndicator()
-                questionFactory?.requestNextQuestion()
-            }
+        let text = "Your result: \(correctAnswers)/10\nNumber of games: \(gamesCount)\nBest game: \(correct)/\(total) (\(String(describing: date)))\nAccuracy: \(String(format: "%.2f", totalAccuracy))%"
+        let viewModel = QuizResultsViewModel(
+            title: "The round is over!",
+            text: text,
+            buttonText: "Play again"
+        )
+        viewController?.show(quiz: viewModel)
     }
     
     private func proceedWithAnswer(isCorrect: Bool) {
@@ -165,9 +154,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         guard let currentQuestion = currentQuestion else {
             return
         }
-        
         let givenAnswer = isYes
-        
         proceedWithAnswer(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
 }

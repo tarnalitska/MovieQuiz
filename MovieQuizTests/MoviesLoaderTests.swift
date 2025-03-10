@@ -1,17 +1,10 @@
-//
-//  MoviesLoaderTests.swift
-//  MovieQuizTests
-//
-//  Created by Sofya Tarnalitskaya on 06/03/2025.
-//
-
 import XCTest
 @testable import MovieQuiz
 
 struct StubNetworkClient: NetworkRouting {
     
     enum TestError: Error {
-    case test
+        case test
     }
     
     let emulateError: Bool
@@ -65,7 +58,6 @@ class MoviesLoaderTests: XCTestCase {
         
         let stubNetworkClient = StubNetworkClient(emulateError: false)
         let loader = MoviesLoader(networkClient: stubNetworkClient)
-        
         let expectation = expectation(description: "Loading expectation")
         
         loader.loadMovies { result in
@@ -84,7 +76,6 @@ class MoviesLoaderTests: XCTestCase {
         
         let stubNetworkClient = StubNetworkClient(emulateError: true)
         let loader = MoviesLoader(networkClient: stubNetworkClient)
-        
         let expectation = expectation(description: "Loading expectation")
         
         loader.loadMovies { result in

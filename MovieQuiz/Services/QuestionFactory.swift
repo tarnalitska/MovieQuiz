@@ -1,15 +1,8 @@
-//  QuestionFactory.swift
-//  MovieQuiz
-//
-//  Created by Sofya Tarnalitskaya on 28/01/2025.
-//
-
 import Foundation
 
 final class QuestionFactory: QuestionFactoryProtocol {
     
     private var movies: [MostPopularMovie] = []
-    
     private let moviesLoader: MoviesLoading
     private weak var delegate: QuestionFactoryDelegate?
     
@@ -81,8 +74,8 @@ final class QuestionFactory: QuestionFactoryProtocol {
             let isGreaterQuestion = Bool.random()
               
             let text = isGreaterQuestion
-                  ? "Рейтинг этого фильма больше чем \(Int(randomRating))?"
-                  : "Рейтинг этого фильма меньше чем \(Int(randomRating))?"
+                  ? "Is this movie rated higher than \(Int(randomRating))?"
+                  : "Is this movie rated less than \(Int(randomRating))?"
               
             let correctAnswer = isGreaterQuestion
                   ? rating > randomRating

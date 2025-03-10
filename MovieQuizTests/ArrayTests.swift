@@ -1,10 +1,3 @@
-//
-//  ArrayTests.swift
-//  MovieQuizTests
-//
-//  Created by Sofya Tarnalitskaya on 06/03/2025.
-//
-
 import XCTest
 @testable import MovieQuiz
 

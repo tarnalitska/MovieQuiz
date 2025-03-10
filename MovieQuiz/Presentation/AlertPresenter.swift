@@ -1,8 +1,3 @@
-//  AlertPresenter.swift
-//  MovieQuiz
-//
-//  Created by Sofya Tarnalitskaya on 30/01/2025.
-
 import UIKit
 
 final class AlertPresenter {
@@ -13,7 +8,6 @@ final class AlertPresenter {
     }
     
     static func showAlert(model: AlertModel, on viewController: UIViewController){
-        
         let alert = UIAlertController(
             title: model.title,
             message: model.message,
@@ -32,8 +26,6 @@ final class AlertPresenter {
         if let identifier = model.accessibilityIdentifier {
             alert.view.accessibilityIdentifier = identifier
                }
-               
-        
         viewController.present(alert, animated: true, completion: nil)
     }
 }
